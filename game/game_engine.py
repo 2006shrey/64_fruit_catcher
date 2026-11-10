@@ -14,6 +14,7 @@ class GameEngine:
         self.score = 0
         self.lives = 3
         self.spawn_delay = 750
+        self.min_spawn_delay = 250
         self.last_spawn_time = pygame.time.get_ticks()
         self.game_state = "PLAYING"
 
@@ -38,6 +39,13 @@ class GameEngine:
             self.basket.move_right()
 
         now = pygame.time.get_ticks()
+# Increase difficulty as score increases
+        difficulty_level = self.score // 5
+
+        self.spawn_delay = max(
+        self.min_spawn_delay,
+        750 - (difficulty_level * 75)
+        )
 
         if now - self.last_spawn_time >= self.spawn_delay:
             self.fruits.append(Fruit(self.width))
@@ -45,8 +53,10 @@ class GameEngine:
 
         basket_rect = self.basket.rect
 
+        speed_multiplier = 1 + (self.score // 5) * 0.1
+
         for fruit in self.fruits[:]:
-            fruit.update()
+            fruit.update(speed_multiplier)
 
             if basket_rect.colliderect(fruit.rect):
 

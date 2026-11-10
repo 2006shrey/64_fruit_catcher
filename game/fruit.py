@@ -9,7 +9,8 @@ class Fruit:
         self.radius = 14
         self.x = random.randint(30, screen_width - 30)
         self.y = -self.radius * 2
-        self.speed = random.uniform(4.0, 6.5)
+        self.base_speed = random.uniform(4.0, 6.5)
+        self.speed = self.base_speed
 
         # Choose the type of falling object
         self.kind = random.choices(
@@ -29,8 +30,8 @@ class Fruit:
         else:
             self.color = (25, 25, 25)   # Bomb
 
-    def update(self):
-        self.y += self.speed
+    def update(self, speed_multiplier=1.0):
+        self.y += self.speed * speed_multiplier
 
     def is_missed(self, screen_height):
         return self.y > screen_height
