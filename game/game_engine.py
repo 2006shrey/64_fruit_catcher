@@ -2,6 +2,7 @@
 import pygame
 from game.basket import Basket
 from game.fruit import Fruit
+from game.particles import ParticleSystem
 
 
 class GameEngine:
@@ -10,6 +11,7 @@ class GameEngine:
         self.height = height
         self.basket = Basket(width, height)
         self.fruits = []
+        self.particle_system = ParticleSystem()
 
         self.score = 0
         self.lives = 3
@@ -38,7 +40,10 @@ class GameEngine:
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.basket.move_right()
 
+        self.particle_system.update()
+
         now = pygame.time.get_ticks()
+    
 # Increase difficulty as score increases
         difficulty_level = self.score // 5
 
@@ -59,6 +64,13 @@ class GameEngine:
             fruit.update(speed_multiplier)
 
             if basket_rect.colliderect(fruit.rect):
+                                # Create splash particles when caught
+                if fruit.kind != "bomb":
+                    self.particle_system.emit(
+                        fruit.x,
+                        fruit.y,
+                        fruit.color
+                    )
 
                 if fruit.kind == "normal":
                     self.score += 1
@@ -76,6 +88,13 @@ class GameEngine:
                 continue
 
             if fruit.is_missed(self.height):
+                                # Create splash particles when fruit hits the floor
+                if fruit.kind != "bomb":
+                    self.particle_system.emit(
+                        fruit.x,
+                        self.height - 25,
+                        fruit.color
+                    )
 
                 # Missing a normal fruit costs one life.
                 # Missing harmful objects has no penalty.
@@ -109,6 +128,7 @@ class GameEngine:
         )
 
         self.basket.render(screen)
+        self.particle_system.render(screen)
 
         for fruit in self.fruits:
             fruit.render(screen)
